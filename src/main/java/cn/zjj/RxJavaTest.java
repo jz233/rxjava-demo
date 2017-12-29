@@ -6,9 +6,11 @@ import rx.Observer;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func0;
+import rx.schedulers.Schedulers;
 import rx.subjects.AsyncSubject;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subjects.ReplaySubject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -209,8 +211,33 @@ public class RxJavaTest {
 
     }
 
+    /**
+     * ReplaySubject会发射所有数据给观察者，无论它们是何时订阅的。
+     * 也有其它版本的ReplaySubject，在重放缓存增长到一定大小的时候或过了一段时间后会丢弃旧的数据
+     */
+    @Test
+    public void replaySubjectTest() throws InterruptedException {
+        ReplaySubject<String> replaySubject = ReplaySubject.create();
+//        ReplaySubject<String> replaySubject = ReplaySubject.create(100);//创建指定初始缓存容量大小为100的ReplaySubject
+//        ReplaySubject<String> replaySubject = ReplaySubject.createWithSize(2);//只缓存订阅前最后发送的2条数据
+//        ReplaySubject<String> replaySubject = ReplaySubject.createWithTime(1, TimeUnit.SECONDS, Schedulers.computation());  //replaySubject被订阅前的前1秒内发送的数据才能被接收
 
+        replaySubject.onNext("replaySubject: pre1");
+        replaySubject.onNext("replaySubject: pre2");
+//        Thread.sleep(1000);
+        replaySubject.onNext("replaySubject: pre3");
 
+        replaySubject.subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                System.out.println("replaySubject: " + s);
+            }
+        });
+
+        replaySubject.onNext("replaySubject: after1");
+        replaySubject.onNext("replaySubject: after2");
+
+    }
 
 
 }
